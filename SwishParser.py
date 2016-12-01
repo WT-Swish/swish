@@ -9,6 +9,13 @@ from adapt.engine import IntentDeterminationEngine
 
 
 def parse(input_text):
+    """
+    Takes in input text and parses it to determine whether it is talking
+    about plastic, glass, or paper, and then to find any refining things
+    like the number of plastic or the type of glass.
+
+    """
+
     tokenizer = EnglishTokenizer()
     trie = Trie()
     tagger = EntityTagger(trie, tokenizer)
@@ -27,7 +34,7 @@ def parse(input_text):
 
     for rk in recycle_keywords:
         engine.register_entity(rk, "RecycleKeyword")
-
+        
 ##############
 ## Plastics ##
 ##############
@@ -54,7 +61,7 @@ def parse(input_text):
     glass_keywords = [ "glass" ]
 
     for gk in glass_keywords:
-        engine.regiester_entity(gk, "GlassKeyword")
+        engine.register_entity(gk, "GlassKeyword")
 
         glass_descriptor = [ "bottle", "light bulb", "broken", "mirror", "window", "ceramic" ]
 
@@ -67,7 +74,7 @@ def parse(input_text):
 
     paper_keywords = [ "paper", "sheets", "carton" , "cardboard", "box" ]
 
-    for pk in cardboard_keywords:
+    for pk in paper_keywords:
         engine.register_entity(pk, "PaperKeyword")
 
 ############################
@@ -83,20 +90,43 @@ def parse(input_text):
                      .optionally("PlasticNumber")\
                      .build()
 
+    engine.register_intent_parser(plastic_intent)
+
     glass_intent = IntentBuilder("GlassIntent")\
                    .require("RecycleKeyword")\
                    .require("GlassKeyword")\
                    .optionally("GlassDescriptor")\
                    .build()
 
+    engine.register_intent_parser(glass_intent)
+
     paper_intent = IntentBuilder("PaperIntent")\
                    .require("RecycleKeyword")\
                    .require("PaperKeyword")\
                    .build()
 
+    engine.register_intent_parser(paper_intent)
+    
 
 ##############################
 ##############################
 #### Parsing For Keywords ####
 ##############################
 ##############################
+    intents = []
+
+    for intent in engine.determine_intent(input_text):
+        if intent.get('confidence') > 0:
+            intents.append(intent)
+            #print(json.dumps(intent, intent=4)) ATTN: Strange error here. I returned the dictionaries instead.
+
+    return intents
+
+
+## Examples: Not necessary for the rest of the code
+
+print(parse("Can I recycle this glass bottle?"))
+
+print(parse("Can I recycle this plastic bottle?"))
+
+print(parse("Can I recycle this box?"))
