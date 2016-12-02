@@ -1,56 +1,93 @@
-import json
-import sys
+import rethinkdb as r
 
 from adapt.engine import IntentDeterminationEngine
 from adapt.intent import IntentBuilder
 
-engine = IntentDeterminationEngine()
 
-recyclable_keyword = [
-    "recyclable",
-    "recycle",
-    "recycling"
-]
+def register_intent(name, engine, *keywords, **kwargs):
 
-for keyword in recyclable_keyword:
-    engine.register_entity(keyword, "RecyclableKeyword")
+    for keyword in keywords:
+        engine.register_entity(keyword, name.title() + "Keyword")
 
-materials = [
-    "plastic",
-    "paper",
-    "metal",
-    "glass"
-]
+    for index, values in kwargs.items():
+        for value in values:
+            engine.register_entity(value, name.title() + index.title())
 
-for keyword in materials:
-    engine.register_entity(keyword, "RecyclableMaterials")
+    intent = IntentBuilder(name.title() + "Intent")\
+        .require("RecycleKeyword")\
+        .require(name.title() + "Keyword")
 
-plastic_numbers = [
-    "1",
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7"
-]
+    for index in kwargs:
+        intent = intent.optionally(name.title() + index.title())
 
-for number in plastic_numbers:
-    engine.register_entity(number, "PlasticNumber")
+    intent = intent.build()
 
-weather_intent = IntentBuilder("RecyclableIntent")\
-    .require("RecyclableKeyword")\
-    .require("RecyclableMaterials")\
-    .optionally("PlasticNumber")\
-    .build()
-
-engine.register_intent_parser(weather_intent)
+    engine.register_intent_parser(intent)
 
 
-def parse_intent(phrase):
-    return engine.determine_intent(phrase)
+def build_engine(rdb_conn):
+    """Build a recycling intent determination engine."""
+
+    engine = IntentDeterminationEngine()
+
+    recycle_keywords = ["recycle", "recyclable"]
+
+    for rk in recycle_keywords:
+        engine.register_entity(rk, "RecycleKeyword")
+
+    plastic_keywords = [item["name"] for item in r.table(
+        "items").filter({"type": "plastic"}).run(rdb_conn)]
+
+    register_intent(
+        "plastic", engine,
+        *plastic_keywords,
+        descriptor=["number"],
+        numbers=["1", "2", "3", "4", "5", "6", "7"]
+    )
+
+    glass_descriptor = [item["name"] for item in r.table(
+        "items").filter({"type": "glass"}).run(rdb_conn)]
+
+    register_intent(
+        "glass", engine,
+        "glass",
+        descriptor=glass_descriptor
+    )
+
+    paper_keywords = [item["name"] for item in r.table(
+        "items").filter({"type": "paper"}).run(rdb_conn)]
+
+    register_intent(
+        "paper", engine,
+        *paper_keywords
+    )
+
+    return engine
+
+
+def parse(input_text, *, engine):
+    """
+    Takes in input text and parses it to determine whether it is talking
+    about plastic, glass, or paper, and then to find any refining things
+    like the number of plastic or the type of glass.
+    """
+
+    for intent in engine.determine_intent(input_text):
+        if intent is not None and intent.get('confidence') > 0:
+            yield intent
+
 
 if __name__ == "__main__":
-    for intent in parse_intent(' '.join(sys.argv[1:])):
-        if intent.get('confidence') > 0:
-            print(json.dumps(intent, indent=4))
+
+    tests = [
+        "Can I recycle this glass bottle?",
+        "Is a number 6 bottle recyclable?",
+        "Can I recycle this box?"
+    ]
+
+    _engine = build_engine(r.connect(host="localhost", port=28015, db="swish"))
+
+    for test in tests:
+        print(test)
+        print(list(parse(test, engine=_engine)))
+        print()
