@@ -45,13 +45,12 @@ def build_engine(rdb_conn):
         numbers=["1", "2", "3", "4", "5", "6", "7"]
     )
 
-    glass_descriptor = [item["name"] for item in r.table(
+    glass_keywords = [item["name"] for item in r.table(
         "items").filter({"type": "glass"}).run(rdb_conn)]
 
     register_intent(
         "glass", engine,
-        "glass",
-        descriptor=glass_descriptor
+        *glass_keywords
     )
 
     paper_keywords = [item["name"] for item in r.table(

@@ -2,6 +2,7 @@ import rethinkdb as r
 from flask import Flask, abort, g, jsonify, request
 
 from .parse import build_engine, parse
+from .respond import respond, respond_plastic
 
 app = Flask(__name__)
 
@@ -28,24 +29,38 @@ def page_not_found(_):
         "error": 404
     }), 404
 
-INTENTS = {
-    "PlasticIntent": "plastic",
-    "PaperIntent": "paper",
-    "GlassIntent": "glass"
-}
+
+@app.errorhandler(405)
+def method_not_allowed(_):
+    return jsonify({
+        "error": 405
+    }), 405
+
 
 engine = build_engine(r.connect(host="localhost", port=28015, db="swish"))
 
+RESPOND = {
+    "PlasticKeyword": respond_plastic,
+    "GlassKeyword": respond,
+    "PaperKeyword": respond
+}
 
-@app.route("/response")
+
+@app.route("/response", methods=("GET",))
 def response():
 
     data = request.get_json()
 
-    result = []
-
     for intent in parse(data["text"], engine=engine):
         if intent is not None and intent.get("confidence") > 0:
-            result.append(intent)  # TODO
+            for keyword, respond_function in RESPOND.items():
+                if keyword in intent:
+                    return jsonify({
+                        "response": respond_function(
+                            intent, g.rdb_conn, keyword=keyword
+                        )
+                    })
 
-    return jsonify(result)
+    return jsonify({
+        "error": 204
+    })
