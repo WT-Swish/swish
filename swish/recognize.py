@@ -6,10 +6,8 @@ recognizer = sr.Recognizer()
 def speech_to_text(source, recognizer=recognizer):
     try:
         return recognizer.recognize_google(source)
-    except sr.UnknownValueError:
-        return None
     except Exception:
-        return False
+        return ""
 
 
 def listen():

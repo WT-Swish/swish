@@ -1,5 +1,3 @@
-import json
-
 import requests
 
 import config
@@ -18,12 +16,9 @@ try:
 
         response = requests.get(
             config.BASE_URL + "response",
-            headers={
-                "Content-Type": "application/json"
-            },
-            data=json.dumps({
+            json={
                 "text": text
-            })
+            }
         ).json()
 
         print(response)
@@ -35,9 +30,6 @@ try:
 
         print("SAYING:", to_speak)
         speak(to_speak)
-
-        if (input("Continue? [Y/n] ").upper() or 'Y') != 'Y':
-            break
 
 except KeyboardInterrupt:
     print("Exiting.")

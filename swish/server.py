@@ -61,6 +61,4 @@ def response():
                         )
                     })
 
-    return jsonify({
-        "error": 204
-    })
+    return jsonify({})

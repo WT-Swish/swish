@@ -1,1 +1,4 @@
-BASE_URL = "http://localhost:5000/"
+BASE = "localhost"
+PORT = 5000
+
+BASE_URL = "http://{}:{}/".format(BASE, PORT)
