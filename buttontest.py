@@ -1,12 +1,17 @@
 import RPi.GPIO as GPIO
-GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BOARD)
+
+GPIO.setup(11,GPIO.IN)
+input = GPIO.input(11)
 
 
-
-GPIO.setup(17,GPIO.IN)
-input = GPIO.input(17)
-
+prev = False
+inpu = GPIO.input(11)
 
 while True:
-  if (GPIO.input(17)):
-    print("Button Pressed")
+    prev = inpu
+    inpu = GPIO.input(11)
+    if inpu and not prev:
+        print("Button Pressed")
+    elif prev and not inpu:
+        print("Button Released")
