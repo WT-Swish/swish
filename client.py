@@ -26,7 +26,7 @@ try:
         if "response" in response:
             to_speak = response["response"]
         else:
-            to_speak = "An error occured."
+            to_speak = "Sorry, I didn't catch that. Try again?"
 
         print("SAYING:", to_speak)
         speak(to_speak)
