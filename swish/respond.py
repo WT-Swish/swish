@@ -9,9 +9,9 @@ def respond_plastic(intent, rdb_conn, *, keyword="PlasticKeyword"):
         "name": intent[keyword]
     }).run(rdb_conn))
 
-    if item["number"] in RECYCLABLE_PLASTICS:
-        return "YES"  # TODO
-    return "No!"  # TODO
+    return r.table("responses").filter({
+        "is_recyclable": item["number"] in RECYCLABLE_PLASTICS
+    }).sample(1).run(rdb_conn)[0]["response"].format(item=item["name"])
 
 
 def respond(intent, rdb_conn, *, keyword):
