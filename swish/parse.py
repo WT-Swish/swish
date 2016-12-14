@@ -1,7 +1,10 @@
 import rethinkdb as r
+from nltk.stem import WordNetLemmatizer
 
 from adapt.engine import IntentDeterminationEngine
 from adapt.intent import IntentBuilder
+
+wnl = WordNetLemmatizer()
 
 
 def register_intent(name, engine, *keywords, **kwargs):
@@ -70,6 +73,8 @@ def parse(input_text, *, engine):
     about plastic, glass, or paper, and then to find any refining things
     like the number of plastic or the type of glass.
     """
+
+    lemmatized = ' '.join(wnl.lemmatize(word) for word in input_text.split())
 
     for intent in engine.determine_intent(input_text):
         if intent is not None and intent.get('confidence') > 0:
