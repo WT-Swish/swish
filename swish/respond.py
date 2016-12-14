@@ -7,7 +7,10 @@ RECYCLABLE_PLASTICS = (1, 2, 3, 4, 5, 7)
 
 def respond_plastic(intent, rdb_conn, *, keyword="PlasticKeyword"):
 
-    item, response = respond(intent, rdb_conn, keyword=keyword)
+    item, response = respond(
+        intent, rdb_conn, keyword=keyword,
+        function=lambda item: item["number"] in RECYCLABLE_PLASTICS
+    )
 
     return response + " Number {n} plastic is {r}recyclable.".format(
         n=item["number"],
@@ -15,7 +18,10 @@ def respond_plastic(intent, rdb_conn, *, keyword="PlasticKeyword"):
     )
 
 
-def respond(intent, rdb_conn, *, keyword):
+def respond(intent, rdb_conn, *, keyword, function=None):
+
+    if function is None:
+        function = lambda item: item["recyclable"]
 
     item = next(r.table("items").filter({
         "name": intent[keyword]
@@ -25,5 +31,5 @@ def respond(intent, rdb_conn, *, keyword):
         return item, random.choice(item["responses"])
 
     return item, r.table("responses").filter({
-        "is_recyclable": item["recyclable"]
+        "is_recyclable": function(item)
     }).sample(1).run(rdb_conn)[0]["response"].format(item=item["name"])
