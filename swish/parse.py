@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 import rethinkdb as r
 from nltk.stem import WordNetLemmatizer
 

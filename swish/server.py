@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import rethinkdb as r
 from flask import Flask, abort, g, jsonify, request
 
