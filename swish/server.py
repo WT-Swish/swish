@@ -44,7 +44,8 @@ engine = build_engine(r.connect(host="localhost", port=28015, db="swish"))
 RESPOND = defaultdict(lambda: respond, {
     "PlasticKeyword": respond_plastic,
     "GlassKeyword": respond,
-    "PaperKeyword": respond
+    "PaperKeyword": respond,
+    "OtherKeyword": respond
 })
 
 
