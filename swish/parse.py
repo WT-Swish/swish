@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import rethinkdb as r
 from nltk.stem import WordNetLemmatizer
 
@@ -62,6 +64,14 @@ def build_engine(rdb_conn):
     register_intent(
         "paper", engine,
         *paper_keywords
+    )
+
+    other_keywords = [item["name"] for item in r.table(
+        "items").filter(~r.row.hasFields("type")).run(rdb_conn)]
+
+    register_intent(
+        "other", engine,
+        *other_keywords
     )
 
     return engine

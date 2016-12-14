@@ -39,11 +39,11 @@ def method_not_allowed(_):
 
 engine = build_engine(r.connect(host="localhost", port=28015, db="swish"))
 
-RESPOND = {
+RESPOND = defaultdict(lambda: respond, {
     "PlasticKeyword": respond_plastic,
     "GlassKeyword": respond,
     "PaperKeyword": respond
-}
+})
 
 
 @app.route("/response", methods=("GET",))
