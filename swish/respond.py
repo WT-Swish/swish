@@ -12,7 +12,7 @@ def respond_plastic(intent, rdb_conn, *, keyword="PlasticKeyword"):
         function=lambda item: item["number"] in RECYCLABLE_PLASTICS
     )
 
-    return response + " Number {n} plastic is {r}recyclable.".format(
+    return item, response + " Number {n} plastic is {r}recyclable.".format(
         n=item["number"],
         r="" if item["number"] in RECYCLABLE_PLASTICS else "not "
     )

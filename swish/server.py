@@ -58,7 +58,7 @@ def response():
                     return jsonify({
                         "response": respond_function(
                             intent, g.rdb_conn, keyword=keyword
-                        )
+                        )[1]
                     })
 
     return jsonify({})
