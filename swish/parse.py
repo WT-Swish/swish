@@ -33,7 +33,7 @@ def build_engine(rdb_conn):
 
     engine = IntentDeterminationEngine()
 
-    recycle_keywords = ["recycle", "recyclable"]
+    recycle_keywords = ["recycle", "recycled", "recyclable"]
 
     for rk in recycle_keywords:
         engine.register_entity(rk, "RecycleKeyword")
