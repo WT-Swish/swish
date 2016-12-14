@@ -50,6 +50,7 @@ RESPOND = defaultdict(lambda: respond, {
 def response():
 
     data = request.get_json()
+    print(data)
 
     for intent in parse(data["text"], engine=engine):
         if intent is not None and intent.get("confidence") > 0:

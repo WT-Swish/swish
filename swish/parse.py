@@ -67,7 +67,7 @@ def build_engine(rdb_conn):
     )
 
     other_keywords = [item["name"] for item in r.table(
-        "items").filter(~r.row.hasFields("type")).run(rdb_conn)]
+        "items").filter(~r.row.has_fields("type")).run(rdb_conn)]
 
     register_intent(
         "other", engine,
