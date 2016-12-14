@@ -76,7 +76,7 @@ def parse(input_text, *, engine):
 
     lemmatized = ' '.join(wnl.lemmatize(word) for word in input_text.split())
 
-    for intent in engine.determine_intent(input_text):
+    for intent in engine.determine_intent(lemmatized):
         if intent is not None and intent.get('confidence') > 0:
             yield intent
 
