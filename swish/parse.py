@@ -35,8 +35,8 @@ def build_engine(rdb_conn):
 
     recycle_keywords = ["recycle", "recycled", "recyclable"]
 
-    for rk in recycle_keywords:
-        engine.register_entity(rk, "RecycleKeyword")
+    for keyword in recycle_keywords:
+        engine.register_entity(keyword, "RecycleKeyword")
 
     plastic_keywords = [item["name"] for item in r.table(
         "items").filter({"type": "plastic"}).run(rdb_conn)]

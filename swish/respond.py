@@ -23,9 +23,7 @@ def respond(intent, rdb_conn, *, keyword, function=None):
     if function is None:
         function = lambda item: item["recyclable"]
 
-    item = next(r.table("items").filter({
-        "name": intent[keyword]
-    }).run(rdb_conn))
+    item = r.table("items").get(intent[keyword]).run(rdb_conn)
 
     if "responses" in item:
         return item, random.choice(item["responses"])

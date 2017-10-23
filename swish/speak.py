@@ -3,7 +3,7 @@ import os
 from gtts import gTTS
 from pygame import mixer
 
-FILENAME = "response.mp3"
+FILENAME = "/tmp/swish-response.mp3"
 
 mixer.init()
 
